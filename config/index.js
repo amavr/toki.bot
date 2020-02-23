@@ -7,4 +7,12 @@ module.exports = {
         xuri: process.env.DATABASE_URI || 'postgres://postgres:masterkey@localhost:5432/dbtoki',
         uri: process.env.DATABASE_URI || 'postgres://postgres:masterkey@35.242.197.42:5432/db'
     },
+    telegram: {
+        chat_id: 236112196
+    },
+    app: {
+        clip_file_url: "https://storage.googleapis.com/geotalki/",
+        avatar_url: "https://storage.googleapis.com/geotalki/",
+        page_url: "https://tokiapp.ru/tale/",
+    }
 };

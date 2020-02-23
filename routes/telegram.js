@@ -41,7 +41,7 @@ module.exports = function (server, toolbox) {
     bot.on('callback_query', (msg) => {
         console.log('onCallback');
         console.log(JSON.stringify(msg));
-        bot.sendMessage(msg.message.chat.id, `${ msg.from.first_name} ${ msg.from.last_name} selected '${msg.data}'`)
+        bot.sendMessage(msg.message.chat.id, `${msg.from.first_name} ${msg.from.last_name} selected '${msg.data}'`)
             .then(x => {
                 console.log(x);
             })
@@ -76,6 +76,91 @@ module.exports = function (server, toolbox) {
 
         /// отправили в бот
         bot.sendMessage(req.body.chat_id, req.body.msg, req.body.options);
+
+        next();
+    });
+
+    server.post('/api/v1/telegram/complain', function (req, res, next) {
+        console.log("API /telegram/complain");
+        /// приняли запрос
+        res.send(204, null);
+
+        const actor_id = req.body.actor_id;
+        const clip_id = req.body.clip_id;
+
+        const sql =
+            "select clip_id, dt, url, lat, lng, " +
+            "  author_id, author_phone, author_name, claimer_id, phone, name, " +
+            "  clips_x, num_w, num_r, num_b, num_s " +
+            "from vi_complains " +
+            "where clip_id = '" + clip_id + "' " +
+            "and claimer_id = '" + actor_id + "' ";
+
+        console.log(sql);
+
+
+        toolbox.db.any(sql)
+            .then(rows => {
+
+                const r = rows[0];
+                const msg =
+                    'ЖАЛОБА!\n' +
+                    r.name + ' (' + r.phone + ') жалуется на \n' +
+                    toolbox.cfg.app.clip_file_url + r.url + '\n\n' +
+                    // config.get('page_url') + clip_id + '\n\n' +
+                    'Автор: ' + r.author_name + ' (' + r.author_phone + ')\n' +
+                    'записал клипов: ' + r.clips_x + '\n' +
+                    'обоснованных жалоб: ' + r.num_r + '\n' +
+                    'необоснованных жалоб: ' + r.num_w + '\n' +
+                    'в ЧС у пользователей: ' + r.num_b + '\n' +
+                    'подписчиков: ' + r.num_b + '\n' +
+                    'Локация клипа: ' + r.lat + ' ' + r.lng + '\n\n' +
+                    'Что будем делать?\n' +
+                    '';
+
+                var options = {
+                    reply_markup: JSON.stringify({
+                        inline_keyboard: [
+                            [{
+                                text: 'Скрыть клип для всех',
+                                callback_data: 'clip.hide:' + clip_id
+                            }],
+                            [{
+                                text: 'Ложная тревога',
+                                callback_data: 'clip.spam'
+                            }]
+                        ]
+                    })
+                };
+
+                const chat_id = toolbox.cfg.telegram.chat_id;
+                bot.sendMessage(chat_id, msg, options);
+
+            })
+            .catch(error => {
+                console.log('ERROR:', error); // print the error;
+            })
+        // .finally(toolbox.db.$pool.end); // For immediate app exit, shutting down the connection pool
+
+
+        // let sco;
+        // toolbox.db.connect()
+        //     .then(obj => {
+        //         sco = obj;
+
+        //     })
+        //     .catch(error => {
+        //         console.log('connection error');
+        //         console.log(error);
+        //     })
+        //     .finally(() => {
+        //         // release the connection, if it was successful:
+        //         if (sco) {
+        //             // if you pass `true` into method done, i.e. done(true),
+        //             // it will make the pool kill the physical connection.
+        //             sco.done();
+        //         }
+        //     });
 
         next();
     });
