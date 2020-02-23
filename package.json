@@ -17,7 +17,11 @@
   },
   "homepage": "https://github.com/amavr/toki.bot#readme",
   "dependencies": {
+    "bluebird": "^3.7.2",
+    "node-telegram-bot-api": "^0.40.0",
+    "pg-promise": "^10.4.4",
     "restify": "^8.5.1",
-    "restify-plugins": "^1.6.0"
+    "restify-plugins": "^1.6.0",
+    "socks5-https-client": "^1.2.1"
   }
 }
