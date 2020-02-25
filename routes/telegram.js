@@ -5,6 +5,8 @@ const errors = require('restify-errors');
 module.exports = function (server, toolbox) {
 
 
+    // console.log('telegram starting');
+
     process.env.NTBA_FIX_319 = 1;
     const TelegramBot = require('node-telegram-bot-api');
     const Agent = require('socks5-https-client/lib/Agent');
@@ -61,6 +63,15 @@ module.exports = function (server, toolbox) {
     // Just to ping!
     bot.on('message', msg => {
         console.log('onMessage')
+        console.log(JSON.stringify(msg));
+
+        msg.entities
+            .filter(entity => entity.type === 'hashtag')
+            .forEach(tag => {
+                
+            });
+
+
         bot.sendMessage(msg.chat.id, 'I am alive!');
     });
 
